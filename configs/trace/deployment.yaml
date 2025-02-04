@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tracee
+  namespace: security
+spec:
+  selector:
+    matchLabels:
+      app: tracee
+  template:
+    metadata:
+      labels:
+        app: tracee
+    spec:
+      hostPID: true
+      hostNetwork: true
+      containers:
+      - name: tracee
+        image: aquasec/tracee:latest
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1
+            memory: 1Gi
+        volumeMounts:
+        - name: host-root
+          mountPath: /host
+        - name: config
+          mountPath: /etc/tracee/config.yaml
+          subPath: config.yaml
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /
+      - name: config
+        configMap:
+          name: tracee-config

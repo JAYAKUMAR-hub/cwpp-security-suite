@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-rules
+  namespace: security
+data:
+  custom-rules.yaml: |
+    - rule: container_privileges_escalation
+      desc: Detect container privilege escalation attempts
+      condition: >
+        evt.type in (setuid, setgid) and 
+        not proc.name in (allowed_processes) and 
+        container
+      output: >
+        Potential privilege escalation in container
+        (user=%user.name container=%container.name 
+        image=%container.image.repository)
+      priority: HIGH
+      tags: [container, security, privilege]
+
+    - rule: unexpected_network_connection
+      desc: Detect unexpected network connections from containers
+      condition: >
+        evt.type = connect and
+        evt.dir = > and
+        not allowed_outbound_destinations
+      output: >
+        Unexpected network connection detected
+        (connection=%fd.name remote=%fd.raddr 
+        container=%container.name)
+      priority: MEDIUM
+      tags: [network, container]

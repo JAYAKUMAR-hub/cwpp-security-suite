@@ -1,0 +1,29 @@
+apiVersion: policy.oligo.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: container-security-policy
+  namespace: security
+spec:
+  rules:
+    - name: detect_suspicious_syscalls
+      description: Detect potentially malicious system calls
+      conditions:
+        - syscall: ptrace
+          sourceProcesses:
+            - exclude:
+              - debugger
+              - gdb
+        - syscall: process_vm_writev
+      action: alert
+
+    - name: network_connection_monitoring
+      description: Monitor critical network connections
+      conditions:
+        - syscall: connect
+          destinationPorts:
+            - 22  # SSH
+            - 443  # HTTPS
+          sourceNetworks:
+            - exclude:
+              - internal_network
+      action: log

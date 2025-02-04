@@ -1,0 +1,23 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: network-security-policy
+  namespace: security
+spec:
+  network:
+    matchProtocol: TCP
+    matchPort:
+      - "80"
+      - "443"
+      - "8080"
+    action: TRACE
+    
+  containerSelector:
+    matchLabels:
+      security: strict
+
+  observability:
+    enableMetrics: true
+    metricsLabels:
+      - app
+      - namespace

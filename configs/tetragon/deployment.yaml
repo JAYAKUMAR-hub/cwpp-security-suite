@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tetragon
+  namespace: security
+spec:
+  selector:
+    matchLabels:
+      app: tetragon
+  template:
+    metadata:
+      labels:
+        app: tetragon
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: tetragon
+        image: cilium/tetragon:latest
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 1
+            memory: 2Gi
+        volumeMounts:
+        - name: config
+          mountPath: /etc/tetragon/config.yaml
+          subPath: config.yaml
+        - name: bpf-maps
+          mountPath: /sys/fs/bpf
+      volumes:
+      - name: config
+        configMap:
+          name: tetragon-config
+      - name: bpf-maps
+        hostPath:
+          path: /sys/fs/bpf

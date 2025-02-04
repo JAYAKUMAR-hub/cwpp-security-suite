@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tetragon-config
+  namespace: security
+data:
+  config.yaml: |
+    observability:
+      metrics:
+        enabled: true
+        port: 2112
+
+    policy:
+      defaultAction: log
+      
+    networkTracing:
+      enableDNSResolution: true
+      captureIPHeaders: true
+
+    securityProfiles:
+      - name: default-profile
+        rules:
+          - action: deny
+            condition: network.remote_port in [22, 3389]

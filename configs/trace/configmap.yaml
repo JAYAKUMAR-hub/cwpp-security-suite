@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tracee-config
+  namespace: security
+data:
+  config.yaml: |
+    output:
+      json: true
+      option: file
+      path: /var/log/tracee/events.log
+
+    scope:
+      containers: true
+      kubernetes: true
+
+    event_filters:
+      - event: execve
+        action: log
+      - event: network_connect
+        action: alert
+
+    performance:
+      buffer_size: 1024
+      sampling_ratio: 1
